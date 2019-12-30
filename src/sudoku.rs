@@ -7,7 +7,7 @@ pub struct Sudoku {
 }
 
 impl Sudoku {
-    pub fn new(grid: [[u32; 9]; 9]) -> Self {
+    pub fn new(grid: [[u32; 9]; 9]) -> Option<Self> {
         let mut solver = Solver::new();
         let mut lits = [[[Lit::new(0, false); 9]; 9]; 9];
 
@@ -32,37 +32,49 @@ impl Sudoku {
                     for l in 0..9 {
                         if k != l {
                             // Cell(i, j) == k+1 => Cell(i, j) != l+1 for k != l
-                            solver.new_clause(vec![!lits[i][j][k], !lits[i][j][l]]);
+                            if !solver.new_clause(vec![!lits[i][j][k], !lits[i][j][l]]) {
+                                return None;
+                            }
                         }
                         if j != l {
                             // Cell(i, j) == k+1 => Cell(i, l) != k+1 for j != l
-                            solver.new_clause(vec![!lits[i][j][k], !lits[i][l][k]]);
+                            if !solver.new_clause(vec![!lits[i][j][k], !lits[i][l][k]]) {
+                                return None;
+                            }
                         }
                         if i != l {
                             // Cell(i, j) == k+1 => Cell(l, j) != k+1 for i != l
-                            solver.new_clause(vec![!lits[i][j][k], !lits[l][j][k]]);
+                            if !solver.new_clause(vec![!lits[i][j][k], !lits[l][j][k]]) {
+                                return None;
+                            }
                         }
 
                         let mod_i = (i / 3) * 3 + l / 3;
                         let mod_j = (j / 3) * 3 + l % 3;
                         if i != mod_i || j != mod_j {
                             // Cell(i, j) == k+1 => Cell(mod_i, mod_j) != k+1 for i != mod_i, j != mod_j
-                            solver.new_clause(vec![!lits[i][j][k], !lits[mod_i][mod_j][k]]);
+                            if !solver.new_clause(vec![!lits[i][j][k], !lits[mod_i][mod_j][k]]) {
+                                return None;
+                            }
                         }
                     }
                 }
 
                 // At least one of 1..=9 is assigned to Cell(i, j)
-                solver.new_clause(cl);
+                if !solver.new_clause(cl) {
+                    return None;
+                }
 
                 if grid[i][j] != 0 {
                     // Unit clause for already assigned cells
-                    solver.new_clause(vec![lits[i][j][grid[i][j] as usize - 1]]);
+                    if !solver.new_clause(vec![lits[i][j][grid[i][j] as usize - 1]]) {
+                        return None;
+                    }
                 }
             }
         }
 
-        Sudoku { grid, solver }
+        Some(Sudoku { grid, solver })
     }
 
     pub fn solve(&mut self) -> bool {

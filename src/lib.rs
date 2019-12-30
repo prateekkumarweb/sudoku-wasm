@@ -38,11 +38,20 @@ struct SudokuSolution {
 #[wasm_bindgen]
 pub fn solve(grid: &JsValue) -> JsValue {
     let grid: SudokuGrid = grid.into_serde().unwrap();
-    let mut sudoku = sudoku::Sudoku::new(grid.0);
-    let solved = sudoku.solve();
-    JsValue::from_serde(&SudokuSolution {
-        solved,
-        grid: sudoku.grid,
-    })
-    .unwrap()
+    let sudoku = sudoku::Sudoku::new(grid.0);
+    match sudoku {
+        Some(mut sudoku) => {
+            let solved = sudoku.solve();
+            JsValue::from_serde(&SudokuSolution {
+                solved,
+                grid: sudoku.grid,
+            })
+            .unwrap()
+        }
+        None => JsValue::from_serde(&SudokuSolution {
+            solved: false,
+            grid: [[0; 9]; 9],
+        })
+        .unwrap(),
+    }
 }
