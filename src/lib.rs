@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use web_sys::console;
 
@@ -20,7 +21,28 @@ pub fn main_js() -> Result<(), JsValue> {
     console_error_panic_hook::set_once();
 
     // Your code goes here!
-    console::log_1(&JsValue::from_str("Hello world!"));
+    // console::log_1(&JsValue::from_str("Hello world!"));
 
     Ok(())
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct SudokuGrid([[u32; 9]; 9]);
+
+#[derive(Serialize, Deserialize, Debug)]
+struct SudokuSolution {
+    solved: bool,
+    grid: [[u32; 9]; 9],
+}
+
+#[wasm_bindgen]
+pub fn solve(grid: &JsValue) -> JsValue {
+    let grid: SudokuGrid = grid.into_serde().unwrap();
+    let mut sudoku = sudoku::Sudoku::new(grid.0);
+    let solved = sudoku.solve();
+    JsValue::from_serde(&SudokuSolution {
+        solved,
+        grid: sudoku.grid,
+    })
+    .unwrap()
 }
