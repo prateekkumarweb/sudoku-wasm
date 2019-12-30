@@ -21,7 +21,7 @@ pub fn main_js() -> Result<(), JsValue> {
     console_error_panic_hook::set_once();
 
     // Your code goes here!
-    // console::log_1(&JsValue::from_str("Hello world!"));
+    console::log_1(&JsValue::from_str("Hello world!"));
 
     Ok(())
 }

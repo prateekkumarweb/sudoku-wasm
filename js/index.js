@@ -1,5 +1,3 @@
-const lib = import("../pkg/index.js").catch(console.error);
-
 const initialGrid = [
   [6, 0, 0, 0, 0, 4, 0, 0, 1],
   [0, 0, 1, 0, 0, 0, 0, 4, 9],
