@@ -1,5 +1,5 @@
-use rsat::common::*;
 use rsat::msat::*;
+use rsat::{Lit, Solution};
 
 pub struct Sudoku {
     pub grid: [[u32; 9]; 9],
@@ -8,7 +8,7 @@ pub struct Sudoku {
 
 impl Sudoku {
     pub fn new(grid: [[u32; 9]; 9]) -> Option<Self> {
-        let mut solver = Solver::new();
+        let mut solver = Solver::new(SolverOptions::default());
         let mut lits = [[[Lit::new(0, false); 9]; 9]; 9];
 
         for lits_i in &mut lits {
@@ -94,7 +94,7 @@ impl Sudoku {
                 }
                 true
             }
-            Solution::Unsat | Solution::Best(_) => false,
+            Solution::Unsat | Solution::Unknown | Solution::Best(_) => false,
         }
     }
 }
